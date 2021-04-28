@@ -1,7 +1,12 @@
 import Link from 'next/link';
-import React, { FC } from 'react';
+import React, { FC, MouseEventHandler } from 'react';
 
-export const PureTaskItem: FC<PureProps> = ({ id, title }) => (
+export const PureTaskItem: FC<PureProps> = ({
+  id,
+  onDeleteTaskClick,
+  onEditTaskClick,
+  title,
+}) => (
   <li className="flex items-center space-x-2 text-white">
     <div className="flex-1">
       <span>{id}: </span>
@@ -12,10 +17,12 @@ export const PureTaskItem: FC<PureProps> = ({ id, title }) => (
       </Link>
     </div>
     <div className="flex space-x-1">
-      <button className="border-none p-0 appearance-none">
+      <button
+        className="border-none p-0 appearance-none"
+        onClick={onEditTaskClick}
+      >
         <svg
           fill="none"
-          // onClick={() => setSelectedTask(task)}
           height="1em"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -30,10 +37,12 @@ export const PureTaskItem: FC<PureProps> = ({ id, title }) => (
           />
         </svg>
       </button>
-      <button className="border-none p-0 appearance-none">
+      <button
+        className="border-none p-0 appearance-none"
+        onClick={onDeleteTaskClick}
+      >
         <svg
           fill="none"
-          // onClick={deleteTask}
           height="1em"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -52,13 +61,22 @@ export const PureTaskItem: FC<PureProps> = ({ id, title }) => (
   </li>
 );
 
-export const TaskItem: FC<Props> = ({ id, title }) => {
-  return <PureTaskItem {...{ id, title }} />;
+export const TaskItem: FC<Props> = ({
+  id,
+  onDeleteTaskClick,
+  onEditTaskClick,
+  title,
+}) => {
+  return (
+    <PureTaskItem {...{ id, onDeleteTaskClick, onEditTaskClick, title }} />
+  );
 };
 
 export type PureProps = Props;
 
 export type Props = {
   id: number;
+  onDeleteTaskClick: MouseEventHandler<HTMLButtonElement>;
+  onEditTaskClick: MouseEventHandler<HTMLButtonElement>;
   title: string;
 };

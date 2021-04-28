@@ -17,6 +17,7 @@ const PureTaskDetailPage: VFC<PureProps> = ({ task: { id, title } }) => (
 
 const TaskDetailPage: NextPage<Props> = ({ task }) => {
   // TODO(tasks): loading, failure
+
   if (!task) {
     return <div>loading...</div>;
   }
@@ -43,7 +44,7 @@ export const getStaticPaths: GetStaticPaths<TaskParams> = async () => {
   }));
 
   return {
-    fallback: false,
+    fallback: true,
     paths,
   };
 };
@@ -57,5 +58,6 @@ export const getStaticProps: GetStaticProps<StaticProps, TaskParams> = async ({
 
   return {
     props: { task },
+    revalidate: 3,
   };
 };

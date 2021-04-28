@@ -1,13 +1,34 @@
 import Link from 'next/link';
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 
+import { createTask, deleteTask, updateTask } from '../../../lib/tasks';
+import { Props as TaskFormProps, TaskForm } from '../TaskForm/TaskForm';
 import { Props as TaskItemProps, TaskItem } from '../TaskItem/TaskItem';
 
-export const PureTaskList: FC<PureProps> = ({ tasks }) => (
+export const PureTaskList: FC<PureProps> = ({
+  button,
+  onDeleteTaskClick,
+  onEditTaskClick,
+  onTaskChange,
+  onTaskSubmit,
+  tasks,
+  title,
+}) => (
   <>
-    <ul className="m-10 space-y-1 list-none">
+    <TaskForm {...{ button, onTaskChange, onTaskSubmit, title }} />
+    <ul className="m-10 p-0 space-y-1 list-none">
       {tasks &&
-        tasks.map(({ id, title }) => <TaskItem key={id} {...{ id, title }} />)}
+        tasks.map(({ id, title }) => (
+          <TaskItem
+            key={id}
+            {...{
+              id,
+              onDeleteTaskClick: onDeleteTaskClick(id),
+              onEditTaskClick: onEditTaskClick(id),
+              title,
+            }}
+          />
+        ))}
     </ul>
     <Link href="/main/">
       <a className="flex w-max items-center cursor-pointer mt-12 text-blue-500 border-solid border-0 border-b border-blue-500">
@@ -30,11 +51,87 @@ export const PureTaskList: FC<PureProps> = ({ tasks }) => (
 );
 
 export const TaskList: FC<Props> = ({ tasks }) => {
-  return <PureTaskList {...{ tasks }} />;
+  const [task, setTask] = useState('');
+  const [taskStatus, setTaskStatus] = useState<
+    | { status: 'create'; taskId: undefined }
+    | { status: Exclude<PureProps['button'], 'create'>; taskId: number }
+  >({ status: 'create', taskId: undefined });
+
+  const handleDeleteTaskClick: PureProps['onDeleteTaskClick'] = (id) => async (
+    event
+  ) => {
+    event.preventDefault();
+
+    await deleteTask(id);
+    setTaskStatus({ status: 'create', taskId: undefined });
+  };
+
+  const handleEditTaskClick: PureProps['onEditTaskClick'] = (id) => (event) => {
+    event.preventDefault();
+
+    setTaskStatus({ status: 'update', taskId: id });
+
+    const editTask = tasks.find((task) => task.id === id);
+    setTask(editTask?.title ?? '');
+  };
+
+  const handleTaskChange: PureProps['onTaskChange'] = (event) => {
+    event.preventDefault();
+
+    if (event.target.value === '') {
+      setTaskStatus({ status: 'create', taskId: undefined });
+    }
+
+    setTask(event.target.value);
+  };
+
+  const handleTaskSubmit: PureProps['onTaskSubmit'] =
+    taskStatus.status === 'create'
+      ? async (event) => {
+          event.preventDefault();
+
+          await createTask(task);
+          setTask('');
+        }
+      : async (event) => {
+          event.preventDefault();
+
+          await updateTask(task, taskStatus.taskId);
+          setTaskStatus({ status: 'create', taskId: undefined });
+          setTask('');
+        };
+  const button = taskStatus.status === 'create' ? 'create' : 'update';
+
+  return (
+    <PureTaskList
+      {...{
+        button,
+        onDeleteTaskClick: handleDeleteTaskClick,
+        onEditTaskClick: handleEditTaskClick,
+        onTaskChange: handleTaskChange,
+        onTaskSubmit: handleTaskSubmit,
+        tasks,
+        title: task,
+      }}
+    />
+  );
 };
 
-export type PureProps = Props;
+export type PureProps = Omit<
+  TaskFormProps &
+    Props & {
+      onDeleteTaskClick: (id: number) => TaskItemProps['onDeleteTaskClick'];
+      onEditTaskClick: (id: number) => TaskItemProps['onEditTaskClick'];
+    },
+  ''
+>;
 
 export type Props = {
-  tasks: TaskItemProps[];
+  tasks: {
+    [P in keyof Omit<
+      TaskItemProps,
+      'onDeleteTaskClick' | 'onEditTaskClick'
+    >]: TaskItemProps[P];
+  }[];
+  // tasks: Omit<TaskItemProps, 'onDeleteTaskClick' | 'onEditTaskClick'>[];
 };

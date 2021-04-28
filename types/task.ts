@@ -16,10 +16,12 @@ export type TaskIds = {
 };
 
 export type TaskById = {
-  task: {
-    id: number;
-    title: string;
-  };
+  task: Task;
+};
+
+export type Task = {
+  id: number;
+  title: string;
 };
 
 export type TaskError = Error;
