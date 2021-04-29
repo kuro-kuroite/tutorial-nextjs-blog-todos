@@ -1,6 +1,9 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import React, { FC } from 'react';
+import React, { FC, useContext } from 'react';
+
+import { LoginContext } from '../Auth/LoginProvider';
+import { useRequireLogin } from '../Auth/useRequireLogin';
 
 export const PureLayout: FC<PureProps> = ({ children, title }) => (
   <div
@@ -55,6 +58,9 @@ export const PureLayout: FC<PureProps> = ({ children, title }) => (
 );
 
 export const Layout: FC<Props> = ({ children, title }) => {
+  const { isLogin } = useContext(LoginContext);
+  useRequireLogin(isLogin);
+
   return <PureLayout {...{ children, title }} />;
 };
 

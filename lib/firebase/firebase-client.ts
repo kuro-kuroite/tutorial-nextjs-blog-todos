@@ -22,4 +22,4 @@ const app = firebase.apps.length
 // FYI: https://stackoverflow.com/a/62110869
 export const db = app.firestore();
 
-// export const auth = app.auth();
+export const auth = app.auth();

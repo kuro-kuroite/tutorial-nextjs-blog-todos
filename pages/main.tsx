@@ -2,11 +2,9 @@ import { NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { MouseEventHandler, VFC } from 'react';
-import Cookie from 'universal-cookie';
 
 import { Layout } from '../components/Layout/Layout';
-
-const cookie = new Cookie();
+import { logout } from '../lib/auth';
 
 export const PureMainPage: VFC<PureProps> = ({ onLogoutClick }) => (
   <Layout title="Main">
@@ -44,13 +42,6 @@ export const PureMainPage: VFC<PureProps> = ({ onLogoutClick }) => (
 export const MainPage: NextPage<Props> = () => {
   const router = useRouter();
 
-  const logout = async () => {
-    cookie.remove('access_token');
-    await router.push('/');
-
-    return;
-  };
-
   const handleLogoutClick: PureProps['onLogoutClick'] = async (event) => {
     event.preventDefault();
 
@@ -60,6 +51,7 @@ export const MainPage: NextPage<Props> = () => {
     // }
 
     await logout();
+    await router.push('/');
 
     return;
   };

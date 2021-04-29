@@ -3,19 +3,22 @@ import { useRouter } from 'next/router';
 import React, {
   ChangeEventHandler,
   FormEventHandler,
+  useContext,
+  useEffect,
   useState,
   VFC,
 } from 'react';
-import Cookie from 'universal-cookie';
 
-const cookie = new Cookie();
+import { signUp } from '../../lib/auth';
+import { auth } from '../../lib/firebase/firebase-client';
+import { LoginContext } from './LoginProvider';
 
 export const PureSignUp: VFC<PureProps> = ({
+  email,
+  onEmailChange,
   onLoginSubmit,
   onPasswordChange,
-  onUserNameChange,
   password,
-  userName,
 }) => (
   <div className="max-w-md w-full space-y-8">
     <div className="flex flex-col justify-center">
@@ -28,23 +31,23 @@ export const PureSignUp: VFC<PureProps> = ({
         Sign up your account
       </h2>
     </div>
-    <form action="#" className="mt-8 space-y-6" method="POST">
+    <form className="mt-8 space-y-6" onSubmit={onLoginSubmit}>
       <input defaultValue="true" name="remember" type="hidden" />
       <div className="rounded-md shadow-sm -space-y-px">
         <div>
-          <label className="sr-only" htmlFor="username">
-            User name
+          <label className="sr-only" htmlFor="email">
+            E-mail
           </label>
           <input
-            autoComplete="username"
+            autoComplete="email"
             className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-            id="username"
-            name="username"
-            onChange={onUserNameChange}
-            placeholder="User name"
+            id="email"
+            name="email"
+            onChange={onEmailChange}
+            placeholder="E-mail"
             required={true}
-            type="text"
-            value={userName}
+            type="email"
+            value={email}
           />
         </div>
         <div>
@@ -76,7 +79,6 @@ export const PureSignUp: VFC<PureProps> = ({
       <div>
         <button
           className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          onSubmit={onLoginSubmit}
           type="submit"
         >
           <span className="absolute left-0 inset-y-0 flex items-center pl-3">
@@ -103,40 +105,19 @@ export const PureSignUp: VFC<PureProps> = ({
 
 export const SignUp: VFC<Props> = () => {
   const router = useRouter();
-  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(false);
+  const { isLogin, setIsLogin } = useContext(LoginContext);
 
-  const login = async () => {
-    try {
-      const res = await fetch(
-        `${process.env?.NEXT_PUBLIC_REST_API_URL ?? ''}/api/auth/jwt/create/`,
-        {
-          body: JSON.stringify({ password, userName }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-        }
-      );
-
-      if (res.status === 400) {
-        throw new Error('authentication failed');
-      }
-
-      if (!res.ok) {
+  useEffect(() => {
+    const unSub = auth.onAuthStateChanged((user) => {
+      if (!user) {
         return;
       }
+    });
 
-      const data = await res.json();
-      cookie.set('access_token', data.access, { path: '/' });
-      setIsLogin(true);
-
-      await router.push('/main-page');
-    } catch (error) {
-      alert(error);
-    }
-  };
+    return () => unSub();
+  }, [router]);
 
   const handleLoginSubmit: PureProps['onLoginSubmit'] = async (event) => {
     event.preventDefault();
@@ -145,35 +126,15 @@ export const SignUp: VFC<Props> = () => {
       return;
     }
 
-    try {
-      const res = await fetch(
-        `${process.env?.NEXT_PUBLIC_REST_API_URL ?? ''}/api/register/`,
-        {
-          body: JSON.stringify({ password, userName }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-        }
-      );
-
-      if (res.status === 400) {
-        throw new Error('authentication failed');
-      }
-
-      if (!res.ok) {
-        return;
-      }
-    } catch (error) {
-      alert(error);
-    }
-    await login();
+    await signUp(email, password);
+    setIsLogin(true);
+    await router.push('/main/');
 
     return;
   };
 
-  const handleUserNameChange: PureProps['onUserNameChange'] = (event) => {
-    setUserName(event.target.value);
+  const handleEmailChange: PureProps['onEmailChange'] = (event) => {
+    setEmail(event.target.value);
   };
 
   const handlePasswordChange: PureProps['onPasswordChange'] = (event) => {
@@ -183,11 +144,11 @@ export const SignUp: VFC<Props> = () => {
   return (
     <PureSignUp
       {...{
+        email,
+        onEmailChange: handleEmailChange,
         onLoginSubmit: handleLoginSubmit,
         onPasswordChange: handlePasswordChange,
-        onUserNameChange: handleUserNameChange,
         password,
-        userName,
       }}
     />
   );
@@ -196,9 +157,9 @@ export const SignUp: VFC<Props> = () => {
 export type Props = Record<string, unknown>;
 
 export type PureProps = {
-  onLoginSubmit: FormEventHandler<HTMLButtonElement>;
+  email: string;
+  onEmailChange: ChangeEventHandler<HTMLInputElement>;
+  onLoginSubmit: FormEventHandler<HTMLFormElement>;
   onPasswordChange: ChangeEventHandler<HTMLInputElement>;
-  onUserNameChange: ChangeEventHandler<HTMLInputElement>;
   password: string;
-  userName: string;
 };
