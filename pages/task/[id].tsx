@@ -48,7 +48,7 @@ export const getServerSideProps: GetServerSideProps<
     ? {}
     : {
         redirect: {
-          destination: '/',
+          destination: '/login/',
           permanent: false,
         },
       };

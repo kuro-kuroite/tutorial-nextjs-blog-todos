@@ -52,7 +52,7 @@ export const getServerSideProps: GetServerSideProps<ServerSideProps> = async (
     ? {}
     : {
         redirect: {
-          destination: '/',
+          destination: '/login/',
           permanent: false,
         },
       };

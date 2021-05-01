@@ -8,12 +8,6 @@ export const useRequireLogin = (): void => {
 
   useEffect(() => {
     const handleRouteChange = (url: string) => {
-      const allowUrls = ['/', '/signup', '/_error'];
-
-      if (allowUrls.includes(url)) {
-        return true;
-      }
-
       const allowStartWithUrls = ['/blog/'];
 
       if (
@@ -24,11 +18,17 @@ export const useRequireLogin = (): void => {
         return true;
       }
 
+      const allowUrls = ['/', '/login', '/signup', '/main', '/blog', '/_error'];
+
+      if (allowUrls.includes(url)) {
+        return true;
+      }
+
       if (isLogin()) {
         return true;
       }
 
-      void push('/');
+      void push('/login/');
 
       return false;
     };

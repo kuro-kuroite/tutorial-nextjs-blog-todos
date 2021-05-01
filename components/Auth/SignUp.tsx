@@ -67,7 +67,7 @@ export const PureSignUp: VFC<PureProps> = ({
       </div>
       <div className="flex items-center justify-center">
         <div className="text-sm">
-          <Link href="/">
+          <Link href="/login/">
             <span className="cursor-pointer font-medium text-white">
               Login?
             </span>

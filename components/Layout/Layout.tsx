@@ -22,6 +22,7 @@ export const PureLayout: FC<PureProps> = ({ children, title }) => (
           {[
             { slug: '/', title: 'Home' },
             { slug: '/main/', title: 'Main' },
+            { slug: '/login/', title: 'Login' },
           ].map(({ slug, title }) => (
             <li key={title}>
               <Link href={slug}>
