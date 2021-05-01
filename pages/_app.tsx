@@ -6,14 +6,12 @@ import '../styles/base.css';
 import { AppProps } from 'next/app';
 import React, { VFC } from 'react';
 
-import { LoginContextProvider } from '../components/Auth/LoginProvider';
+import { useRequireLogin } from '../components/Auth/useRequireLogin';
 
 const App: VFC<AppProps> = ({ Component, pageProps }) => {
-  return (
-    <LoginContextProvider>
-      <Component {...pageProps} />
-    </LoginContextProvider>
-  );
+  useRequireLogin();
+
+  return <Component {...pageProps} />;
 };
 
 export default App;

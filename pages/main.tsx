@@ -1,10 +1,10 @@
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { MouseEventHandler, VFC } from 'react';
 
 import { Layout } from '../components/Layout/Layout';
-import { logout } from '../lib/auth';
+import { isLogin, logout } from '../lib/auth';
 
 export const PureMainPage: VFC<PureProps> = ({ onLogoutClick }) => (
   <Layout title="Main">
@@ -72,3 +72,23 @@ export type PureProps = {
 };
 
 export type Props = Record<string, unknown>;
+
+export const getServerSideProps: GetServerSideProps<{ dummy: '' }> = async (
+  ctx
+) => {
+  // TODO: validate data using error
+  const dummy: '' = await new Promise((resolve) => resolve(''));
+  const redirect = isLogin(ctx)
+    ? {}
+    : {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+
+  return {
+    ...redirect,
+    props: { dummy },
+  };
+};

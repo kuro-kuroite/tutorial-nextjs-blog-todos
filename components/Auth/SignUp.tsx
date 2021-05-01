@@ -3,15 +3,13 @@ import { useRouter } from 'next/router';
 import React, {
   ChangeEventHandler,
   FormEventHandler,
-  useContext,
   useEffect,
   useState,
   VFC,
 } from 'react';
 
-import { signUp } from '../../lib/auth';
+import { isLogin, signUp } from '../../lib/auth';
 import { auth } from '../../lib/firebase/firebase-client';
-import { LoginContext } from './LoginProvider';
 
 export const PureSignUp: VFC<PureProps> = ({
   email,
@@ -107,7 +105,6 @@ export const SignUp: VFC<Props> = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { isLogin, setIsLogin } = useContext(LoginContext);
 
   useEffect(() => {
     const unSub = auth.onAuthStateChanged((user) => {
@@ -122,12 +119,13 @@ export const SignUp: VFC<Props> = () => {
   const handleLoginSubmit: PureProps['onLoginSubmit'] = async (event) => {
     event.preventDefault();
 
-    if (isLogin) {
+    if (isLogin()) {
       return;
     }
 
     await signUp(email, password);
-    setIsLogin(true);
+    setEmail('');
+    setPassword('');
     await router.push('/main/');
 
     return;

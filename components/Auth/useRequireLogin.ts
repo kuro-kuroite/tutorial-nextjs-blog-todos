@@ -1,41 +1,42 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-export const useRequireLogin = (isLogin: boolean): void => {
-  const router = useRouter();
+import { isLogin } from '../../lib/auth';
+
+export const useRequireLogin = (): void => {
+  const { events, push } = useRouter();
 
   useEffect(() => {
-    // NOTE: redirectLogin()の route.push('/') がうまくいかない場合、以下を使用する
-    // router.beforePopState(({ as, options, url }) => {
-    //   if (url === '/' || url === '/signUp' || url === '/_error') {
-    //     return true;
-    //   }
-
-    //   if (isLogin) {
-    //     return true;
-    //   }
-
-    //   // CSR リダイレクト処理
-    //   // window.location.href = '/';
-    //   void router.push('/');
-
-    //   return false;
-    // });
-
-    const redirectLogin = async () => {
-      if (isLogin) {
-        return;
-      }
-
+    const handleRouteChange = (url: string) => {
       const allowUrls = ['/', '/signup', '/_error'];
 
-      if (allowUrls.includes(router.pathname)) {
-        return;
+      if (allowUrls.includes(url)) {
+        return true;
       }
 
-      await router.push('/');
+      const allowStartWithUrls = ['/blog/'];
+
+      if (
+        allowStartWithUrls.some((allowStartWithUrl) =>
+          url.startsWith(allowStartWithUrl)
+        )
+      ) {
+        return true;
+      }
+
+      if (isLogin()) {
+        return true;
+      }
+
+      void push('/');
+
+      return false;
     };
 
-    void redirectLogin();
-  }, [isLogin, router]);
+    events.on('routeChangeStart', handleRouteChange);
+
+    return () => {
+      events.off('routeChangeStart', handleRouteChange);
+    };
+  }, [events, push]);
 };

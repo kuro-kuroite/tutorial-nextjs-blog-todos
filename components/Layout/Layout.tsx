@@ -1,9 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import React, { FC, useContext } from 'react';
-
-import { LoginContext } from '../Auth/LoginProvider';
-import { useRequireLogin } from '../Auth/useRequireLogin';
+import React, { FC } from 'react';
 
 export const PureLayout: FC<PureProps> = ({ children, title }) => (
   <div
@@ -28,10 +25,7 @@ export const PureLayout: FC<PureProps> = ({ children, title }) => (
           ].map(({ slug, title }) => (
             <li key={title}>
               <Link href={slug}>
-                <a
-                  className="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded cursor-pointer hover:text-gray-300 hover:no-underline"
-                  href={slug}
-                >
+                <a className="text-gray-300 hover:bg-gray-700 px-3 py-2 rounded cursor-pointer hover:text-gray-300 hover:no-underline">
                   {title}
                 </a>
               </Link>
@@ -58,9 +52,6 @@ export const PureLayout: FC<PureProps> = ({ children, title }) => (
 );
 
 export const Layout: FC<Props> = ({ children, title }) => {
-  const { isLogin } = useContext(LoginContext);
-  useRequireLogin(isLogin);
-
   return <PureLayout {...{ children, title }} />;
 };
 

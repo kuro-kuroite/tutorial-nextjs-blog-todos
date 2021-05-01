@@ -1,8 +1,9 @@
-import { GetStaticProps, NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import React, { useEffect, useState, VFC } from 'react';
 
 import { Layout } from '../components/Layout/Layout';
 import { Props as TaskProps, Task } from '../components/Task/Task';
+import { isLogin } from '../lib/auth';
 import { db } from '../lib/firebase/firebase-client';
 import { fetchAllTasksData } from '../lib/tasks';
 
@@ -37,17 +38,27 @@ export default TaskPage;
 
 export type PureProps = Props;
 
-export type Props = StaticProps;
+export type Props = ServerSideProps;
 
-export type StaticProps = TaskProps;
+export type ServerSideProps = TaskProps;
 
-export const getStaticProps: GetStaticProps<StaticProps> = async () => {
+export const getServerSideProps: GetServerSideProps<ServerSideProps> = async (
+  ctx
+) => {
   // TODO: validate data using error
   const { data } = await fetchAllTasksData();
   const tasks = data.tasks;
+  const redirect = isLogin(ctx)
+    ? {}
+    : {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
 
   return {
+    ...redirect,
     props: { tasks },
-    revalidate: 3,
   };
 };
