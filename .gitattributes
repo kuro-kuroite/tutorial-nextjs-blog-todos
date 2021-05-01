@@ -238,6 +238,36 @@ src/**/tsconfig.json linguist-vendored
 content/ linguist-documentation
 content/assets linguist-vendored
 
+# Next.js
+
+## pages/
+pages/**/* linguist-vendored=false
+pages/**/*.module.css.d.ts linguist-generated
+pages/**/__snapshots__/ linguist-generated
+pages/**/.eslintrc.js linguist-vendored
+pages/**/tsconfig.json linguist-vendored
+
+## components/
+components/**/* linguist-vendored=false
+components/**/*.module.css.d.ts linguist-generated
+components/**/__snapshots__/ linguist-generated
+components/**/.eslintrc.js linguist-vendored
+components/**/tsconfig.json linguist-vendored
+
+## lib/
+lib/**/* linguist-vendored=false
+lib/**/*.module.css.d.ts linguist-generated
+lib/**/__snapshots__/ linguist-generated
+lib/**/.eslintrc.js linguist-vendored
+lib/**/tsconfig.json linguist-vendored
+
+## styles/
+styles/**/* linguist-vendored=false
+styles/**/*.module.css.d.ts linguist-generated
+styles/**/__snapshots__/ linguist-generated
+styles/**/.eslintrc.js linguist-vendored
+styles/**/tsconfig.json linguist-vendored
+
 # .gitignore
 # # Jest
 # coverage/ linguist-generated
